@@ -168,6 +168,15 @@ async function loadInbox() {
     return;
   }
 
+  // Auto-detect OTP from the newest message that has one
+  const latestOtp = messages.find((m) => m.otp)?.otp;
+  if (latestOtp && latestOtp !== otpValue) {
+    otpValue = latestOtp;
+    $("otpCode").textContent = latestOtp;
+    $("copyOtpBtn").disabled = false;
+    showToast("OTP detected!");
+  }
+
   for (const message of messages) {
     const card = document.createElement("div");
     card.className = "message";
@@ -206,23 +215,7 @@ async function readMessage(messageId) {
 
     if (!currentInbox || currentInbox.id !== inboxId) return;
 
-    const content = `${message.subject || ""}\n${message.text || ""}`;
-
-    const patterns = [
-      /(?:otp|verification code|security code|login code|one-time code)[^\d]{0,40}(\d{4,8})/i,
-      /(\d{4,8})[^\w]{0,20}(?:is your )?(?:otp|verification code|security code)/i
-    ];
-
-    let otp = null;
-
-    for (const pattern of patterns) {
-      const match = content.match(pattern);
-
-      if (match) {
-        otp = match[1];
-        break;
-      }
-    }
+    const otp = message.otp;
 
     $("inboxStatus").textContent =
       `Opened: ${message.subject || "(No subject)"}`;
