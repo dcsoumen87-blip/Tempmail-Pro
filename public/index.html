@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4f46e5">
+  <title>TempMail Pro</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="brand">
+      <span class="logo">✉</span>
+      <span>TempMail <b>Pro</b></span>
+    </div>
+
+    <button id="themeBtn" class="icon-btn">🌙</button>
+  </header>
+
+  <main class="container">
+
+    <section class="hero">
+      <h1>Temporary Email</h1>
+      <p>Generate an inbox and view incoming messages.</p>
+      <div class="notice">
+        Temporary email addresses may not be accepted by every website.
+      </div>
+    </section>
+
+    <section class="card">
+
+      <h2>Your Email Address</h2>
+
+      <div class="email-box">
+        <span id="emailAddress">Generate an email to start</span>
+        <button id="copyEmailBtn" disabled>Copy</button>
+      </div>
+
+      <div class="timer">
+        <span>⏳ Expires in</span>
+        <strong id="timer">--:--:--</strong>
+      </div>
+
+      <button id="generateBtn" class="primary-btn">
+        ＋ Generate Email
+      </button>
+
+      <button id="deleteBtn" class="secondary-btn" disabled>
+        Delete Inbox
+      </button>
+
+    </section>
+
+    <section class="card">
+
+      <div class="section-header">
+        <h2>Inbox</h2>
+
+        <button id="refreshBtn" disabled>
+          ↻ Refresh
+        </button>
+      </div>
+
+      <p id="inboxStatus" class="muted">
+        Generate an email to check your inbox.
+      </p>
+
+      <div id="messageList"></div>
+
+    </section>
+
+    <section class="card">
+
+      <h2>Verification Code</h2>
+
+      <div class="otp-box">
+        <strong id="otpCode">------</strong>
+
+        <button id="copyOtpBtn" disabled>
+          Copy OTP
+        </button>
+      </div>
+
+      <p class="muted">
+        Open a message to check whether it contains an OTP.
+      </p>
+
+    </section>
+
+    <footer>
+      <p>TempMail Pro · Temporary Email Service</p>
+      <p>Use responsibly and follow the email provider's terms.</p>
+    </footer>
+
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="/app.js" defer></script>
+
+</body>
+</html>
