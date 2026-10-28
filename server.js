@@ -35,15 +35,58 @@ async function mailRequest(endpoint, options = {}) {
   return data;
 }
 
+// ---------- OTP detection ----------
+function htmlToText(html) {
+  const raw = Array.isArray(html) ? html.join("\n") : String(html || "");
+  return raw
+    .replace(/<(style|script)[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<br\s*\/?>|<\/(p|div|tr|h\d|li)>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/[ \t]+/g, " ");
+}
+
+function extractOtp(text) {
+  const clean = String(text || "");
+
+  const patterns = [
+    // Google style: "G-123456 is your Google verification code"
+    /\bG-(\d{4,8})\b/,
+    // "verification code is 123456", "OTP: 123456", "code - 123456"
+    /(?:otp|passcode|pin|(?:verification|confirmation|security|login|sign[- ]?in|one[- ]?time|access|authentication)\s*(?:code|number)?|code)[^\d\n]{0,40}?(\d{4,8})\b/i,
+    // "123456 is your ... code"
+    /\b(\d{4,8})\b[^\d\n]{0,20}?(?:is|as)\s+your[^\n]{0,40}?(?:otp|code|pin)/i,
+    // spaced / dashed codes: "123 456" or "123-456"
+    /(?:code|otp)[^\d\n]{0,40}?(\d{3})[ -](\d{3})\b/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = clean.match(pattern);
+    if (match) {
+      return match.slice(1).filter(Boolean).join("");
+    }
+  }
+
+  // Fallback: a lone 6-digit number on its own line
+  const lone = clean.match(/^\s*(\d{6})\s*$/m);
+  return lone ? lone[1] : null;
+}
+
+function messageText(message) {
+  return `${message.subject || ""}\n${message.text || ""}\n${htmlToText(message.html)}\n${message.intro || ""}`;
+}
+
 // Generate a temporary email inbox
 app.post("/api/inboxes", async (req, res) => {
   try {
     const domainsData = await mailRequest("/domains");
     const domains = domainsData["hydra:member"] || domainsData;
 
-    const domain = domains.find(
-      item => item.isActive && !item.isPrivate
-    )?.domain;
+    const usable = domains.filter(item => item.isActive && !item.isPrivate);
+    const domain = usable.length
+      ? usable[Math.floor(Math.random() * usable.length)].domain
+      : null;
 
     if (!domain) {
       return res.status(503).json({
@@ -108,12 +151,30 @@ app.get("/api/inboxes/:id/messages", async (req, res) => {
       }
     });
 
-    const messages = (data["hydra:member"] || []).map(message => ({
-      id: message.id,
-      from: message.from?.address || "Unknown sender",
-      subject: message.subject || "(No subject)",
-      intro: message.intro || "",
-      createdAt: message.createdAt
+    const items = (data["hydra:member"] || []).slice(0, 10);
+
+    // Fetch each message body so the OTP can be detected automatically
+    const messages = await Promise.all(items.map(async (message) => {
+      let otp = extractOtp(messageText(message));
+
+      if (!otp) {
+        try {
+          const full = await mailRequest(
+            `/messages/${encodeURIComponent(message.id)}`,
+            { headers: { Authorization: `Bearer ${inbox.token}` } }
+          );
+          otp = extractOtp(messageText(full));
+        } catch {}
+      }
+
+      return {
+        id: message.id,
+        from: message.from?.address || "Unknown sender",
+        subject: message.subject || "(No subject)",
+        intro: message.intro || "",
+        createdAt: message.createdAt,
+        otp
+      };
     }));
 
     res.json({ address: inbox.address, messages });
@@ -141,28 +202,13 @@ app.get("/api/inboxes/:id/messages/:messageId", async (req, res) => {
       }
     );
 
-    const text = `${message.subject || ""}\n${message.text || ""}\n${message.intro || ""}`;
-
-    const patterns = [
-      /(?:otp|verification code|security code|login code|one-time code)[^\d]{0,40}(\d{4,8})/i,
-      /(\d{4,8})[^\w]{0,20}(?:is your )?(?:otp|verification code|security code)/i
-    ];
-
-    let otp = null;
-
-    for (const pattern of patterns) {
-      const match = text.match(pattern);
-      if (match) {
-        otp = match[1];
-        break;
-      }
-    }
+    const otp = extractOtp(messageText(message));
 
     res.json({
       id: message.id,
       subject: message.subject,
       from: message.from?.address,
-      text: message.text || message.intro || "",
+      text: message.text || htmlToText(message.html).trim() || message.intro || "",
       otp
     });
   } catch (error) {
