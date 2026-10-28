@@ -1,0 +1,273 @@
+:root {
+  --bg: #f4f6fc;
+  --card: #ffffff;
+  --text: #1b2340;
+  --muted: #747d94;
+  --primary: #5146e5;
+  --border: #e5e8f2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 6%;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 21px;
+  font-weight: bold;
+}
+
+.brand b {
+  color: var(--primary);
+}
+
+.logo {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
+  font-size: 24px;
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 15px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.icon-btn {
+  font-size: 19px;
+}
+
+.container {
+  width: min(100% - 28px, 760px);
+  margin: 35px auto;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.hero h1 {
+  font-size: clamp(28px, 5vw, 40px);
+  margin-bottom: 10px;
+}
+
+.hero p,
+.muted {
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.notice {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 13px;
+  border-radius: 9px;
+  background: #fff4d6;
+  color: #805a00;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 28px rgba(30, 40, 80, 0.05);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.email-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+
+.email-box span {
+  flex: 1;
+  min-width: 0;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.timer {
+  display: flex;
+  justify-content: space-between;
+  margin: 18px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.timer strong {
+  color: #13865b;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 10px;
+  border: none;
+  color: white;
+  background: linear-gradient(100deg, #2563eb, #6d3fe5);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.secondary-btn {
+  width: 100%;
+  padding: 13px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.otp-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px;
+  border: 1px dashed var(--primary);
+  border-radius: 12px;
+  background: #f6f5ff;
+}
+
+.otp-box strong {
+  color: var(--primary);
+  font-size: 25px;
+  letter-spacing: 4px;
+  overflow-wrap: anywhere;
+}
+
+.message {
+  padding: 15px 2px;
+  border-bottom: 1px solid var(--border);
+}
+
+.message:last-child {
+  border-bottom: none;
+}
+
+.message button {
+  margin-top: 10px;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 8px 0 25px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #20243a;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  max-width: 90%;
+  text-align: center;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+body.dark {
+  --bg: #111426;
+  --card: #1c2035;
+  --text: #f1f3ff;
+  --muted: #a5aec5;
+  --primary: #8b82ff;
+  --border: #343951;
+}
+
+body.dark .otp-box {
+  background: #292540;
+}
+
+body.dark .notice {
+  background: #3a311e;
+  color: #ffdf91;
+}
+
+@media (max-width: 520px) {
+  .container {
+    margin-top: 24px;
+  }
+
+  .card {
+    padding: 17px;
+    border-radius: 15px;
+  }
+
+  .header {
+    padding: 13px 16px;
+  }
+
+  .brand {
+    font-size: 18px;
+  }
+
+  .email-box {
+    padding: 9px;
+  }
+
+  .email-box button {
+    padding: 10px;
+  }
+}
